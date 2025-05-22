@@ -20,6 +20,8 @@ use tauri::Manager;
 use std::process::Command;
 use serde::Serialize;
 use reqwest;
+use std::fs;
+use std::path::Path;
 
 #[derive(Serialize)]
 struct PackageInfo {
@@ -138,9 +140,18 @@ fn list_github_apps() -> Vec<GithubAppInfo> {
     ]
 }
 
+#[tauri::command]
+async fn install_github_app(repo: String) -> String {
+    // Download the latest release asset (stub: just echo for now)
+    // In production, use GitHub API to fetch the latest release and download the binary
+    // For now, just simulate install
+    let msg = format!("Installing latest release from {}...\n(Stub: implement real download and install)", repo);
+    msg
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![list_packages, install_package, search_aur, package_action, list_github_apps])
+        .invoke_handler(tauri::generate_handler![list_packages, install_package, search_aur, package_action, list_github_apps, install_github_app])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

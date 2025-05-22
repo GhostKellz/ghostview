@@ -7,6 +7,8 @@
   let source = 'Arch';
   let githubApps = [];
   let showGithub = false;
+  let githubInstalling = '';
+  let githubOutput = '';
 
   async function fetchPackages() {
     if (source === 'Arch' || source === 'ChaoticAUR') {
@@ -46,12 +48,20 @@
     showGithub = true;
   }
 
+  async function installGithubApp(app) {
+    githubInstalling = app.repo;
+    githubOutput = '';
+    // @ts-ignore
+    githubOutput = await window.__TAURI__.invoke('install_github_app', { repo: app.repo });
+    githubInstalling = '';
+  }
+
   onMount(fetchPackages);
 </script>
 
 <main>
   <h1>GhostView (Octopi Clone)</h1>
-  <div style="margin-bottom:1em;">
+  <div class="toolbar">
     <button on:click={() => setSource('Arch')}>Arch</button>
     <button on:click={() => setSource('AUR')}>AUR</button>
     <button on:click={() => setSource('ChaoticAUR')}>ChaoticAUR</button>
@@ -60,35 +70,44 @@
     <button on:click={doSearch}>Search</button>
   </div>
   {#if showGithub}
-    <h2>Curated GitHub Apps</h2>
-    <ul>
-      {#each githubApps as app}
-        <li>
-          <b>{app.name}</b> <a href={app.url} target="_blank">{app.repo}</a> — {app.desc}
-          <!-- Future: Add install button -->
-        </li>
-      {/each}
-    </ul>
+    <section class="github-apps">
+      <h2>Curated GitHub Apps</h2>
+      <ul>
+        {#each githubApps as app}
+          <li>
+            <b>{app.name}</b> <a href={app.url} target="_blank">{app.repo}</a> — {app.desc}
+            <button on:click={() => installGithubApp(app)} disabled={githubInstalling === app.repo}>
+              {githubInstalling === app.repo ? 'Installing...' : 'Install'}
+            </button>
+          </li>
+        {/each}
+      </ul>
+      {#if githubOutput}
+        <pre>{githubOutput}</pre>
+      {/if}
+    </section>
   {:else}
-    <ul>
-      {#each packages as pkg}
-        <li>
-          <b>{pkg.name}</b> <small>[{pkg.repo}]</small> — {pkg.desc}
-          <button on:click={() => packageAction('install', pkg)} disabled={installing === pkg.name}>
-            {installing === pkg.name ? 'Installing...' : 'Install'}
-          </button>
-          <button on:click={() => packageAction('remove', pkg)} disabled={installing === pkg.name}>
-            Remove
-          </button>
-          <button on:click={() => packageAction('update', pkg)} disabled={installing === pkg.name}>
-            Update
-          </button>
-        </li>
-      {/each}
-    </ul>
-  {/if}
-  {#if output}
-    <pre>{output}</pre>
+    <section class="package-list">
+      <ul>
+        {#each packages as pkg}
+          <li>
+            <b>{pkg.name}</b> <small>[{pkg.repo}]</small> — {pkg.desc}
+            <button on:click={() => packageAction('install', pkg)} disabled={installing === pkg.name}>
+              {installing === pkg.name ? 'Installing...' : 'Install'}
+            </button>
+            <button on:click={() => packageAction('remove', pkg)} disabled={installing === pkg.name}>
+              Remove
+            </button>
+            <button on:click={() => packageAction('update', pkg)} disabled={installing === pkg.name}>
+              Update
+            </button>
+          </li>
+        {/each}
+      </ul>
+      {#if output}
+        <pre>{output}</pre>
+      {/if}
+    </section>
   {/if}
 </main>
 
@@ -97,6 +116,29 @@ main {
   max-width: 700px;
   margin: 2rem auto;
   font-family: sans-serif;
+}
+.toolbar {
+  margin-bottom: 1em;
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+input {
+  flex: 1;
+  min-width: 120px;
+}
+.package-list ul, .github-apps ul {
+  list-style: none;
+  padding: 0;
+}
+.package-list li, .github-apps li {
+  margin-bottom: 0.5em;
+  padding: 0.5em;
+  background: #f7f7fa;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 1em;
 }
 button {
   margin-left: 0.5rem;
