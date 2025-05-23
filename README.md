@@ -1,10 +1,12 @@
 # 👻 GhostView
 
-[![Build](https://img.shields.io/github/actions/workflow/status/ghostkellz/ghostview/ci.yml?branch=main)](https://github.com/ghostkellz/ghostview/actions)
-[![License](https://img.shields.io/github/license/ghostkellz/ghostview)](LICENSE)
+![GhostView Preview](assets/preview.png)
+
+[![CI](https://img.shields.io/github/actions/workflow/status/ghostkellz/ghostview/ci.yml?label=build&logo=github&style=flat-square)](https://github.com/ghostkellz/ghostview/actions)
+[![MIT License](https://img.shields.io/github/license/ghostkellz/ghostview?color=green&style=flat-square)](LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/ghostkellz/ghostview?style=social)](https://github.com/ghostkellz/ghostview)
 
-> ✨ A sleek, modular GUI for discovering and managing packages across the Arch Linux ecosystem — built with Rust and Slint.
+> ✨ A sleek, modular GUI for discovering and managing packages across the Arch Linux ecosystem — built with Rust and egui.
 
 ---
 
@@ -15,10 +17,10 @@
 Browse and manage:
 
 - 📦 **Pacman** (GUI + system packages)
-- 🎯 **AUR** and **Chaotic-AUR**
-- 📦 **Flatpak** (from Flathub & custom remotes)
-- 🧩 **KDE/GNOME apps**
-- 🧰 Curated **GitHub repositories** for essential Linux tools
+- 🎯 **AUR** and **Chaotic-AUR** (planned)
+- 📦 **Flatpak** (from Flathub & custom remotes, planned)
+- 🧩 **KDE/GNOME apps** (planned)
+- 🧰 Curated **GitHub repositories** for essential Linux tools (planned)
 - 🐧 Future: Snap, AppImage, and Debian package support
 
 ---
@@ -27,8 +29,8 @@ Browse and manage:
 
 | Feature | Status |
 |--------|--------|
-| 🔍 Unified package search (Pacman/AUR/Flatpak) | 🚧 In Progress |
-| 🖥️ Native Slint-based UI | ✅ Scaffolded |
+| 🔍 Unified package search (Pacman, AUR, Flatpak) | 🚧 Pacman GUI working |
+| 🖥️ Modern egui-based UI | ✅ In Progress |
 | 🧙 Ghostbrew backend integration (via Rust) | 🛠️ Next up |
 | 📚 GitHub repo listing (tagged & categorized) | 🧪 Experimental |
 | 📡 Connect to self-hosted AUR or Flatpak remotes | 🔜 |
@@ -40,7 +42,7 @@ Browse and manage:
 ## ⚙️ Tech Stack
 
 - 🦀 **Rust** for the backend and core logic
-- 🖼️ **Slint** for the native, cross-platform GUI (Wayland/KDE/X11/Windows/macOS)
+- 🎨 **egui/eframe** for the native, cross-platform GUI (Wayland/KDE/X11/Windows/macOS)
 - 🐧 Native Linux/Wayland support (no web stack)
 
 ---

@@ -1,13 +1,13 @@
-# Maintainer: Your Name <your@email.com>
+# Maintainer: GhostKellz <ckelley@GhostKellz>
 
 pkgname=ghostview
-pkgver=0.1.0
+pkgver=1.0
 pkgrel=1
-pkgdesc="A sleek, native GUI for Arch package management, built with Rust and Slint."
+pkgdesc="A sleek, native GUI for Arch package management, built with Rust and egui."
 arch=('x86_64')
 url="https://github.com/ghostkellz/ghostview"
 license=('MIT')
-depends=('rust' 'slint' 'gtk3')
+depends=('rust')
 makedepends=('git' 'cargo')
 source=("$pkgname::git+https://github.com/ghostkellz/ghostview.git")
 md5sums=('SKIP')
@@ -19,7 +19,7 @@ pkgver() {
 
 build() {
   cd "$srcdir/$pkgname"
-  cargo build --release
+  cargo build --release --locked
 }
 
 package() {
