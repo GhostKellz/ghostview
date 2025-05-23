@@ -1,12 +1,12 @@
 # 👻 GhostView
 
 ![GhostView Preview](assets/preview.png)
-
-[![Build](https://img.shields.io/github/actions/workflow/status/ghostkellz/ghostview/ci.yml?label=CI\&logo=github\&style=flat-square)](https://github.com/ghostkellz/ghostview/actions)
-[![License: MIT](https://img.shields.io/github/license/ghostkellz/ghostview?color=green\&style=flat-square)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/ghostkellz/ghostview?style=social)](https://github.com/ghostkellz/ghostview)
+ [![Stars](https://img.shields.io/github/stars/ghostkellz/ghostview?style=social)](https://github.com/ghostkellz/ghostview)
 [![Rust](https://img.shields.io/badge/Built_with-Rust-informational?logo=rust\&style=flat-square)](https://www.rust-lang.org)
+[![GUI: egui](https://img.shields.io/badge/GUI-egui-ff69b4?style=flat-square&logo=rust)](https://github.com/emilk/egui)
 [![GPU Ready](https://img.shields.io/badge/EGL%20%7C%20Wayland-ready-blue?style=flat-square\&logo=nvidia)](https://wiki.archlinux.org/title/Wayland)
+![Async Ready](https://img.shields.io/badge/Async-ready-brightgreen?style=flat-square&logo=tokio)
+
 
 > ✨ A sleek, modular GUI for discovering and managing packages across the Arch Linux ecosystem — built with Rust and `egui`.
 
