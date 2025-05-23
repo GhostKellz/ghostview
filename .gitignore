@@ -1,0 +1,29 @@
+# Go
+/bin/
+/build/
+/dist/
+/ghostview # compiled binary
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Wails
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.svelte-kit/
+/frontend/.vite/
+
+# IDE/editor
+.idea/
+*.swp
+*.swo

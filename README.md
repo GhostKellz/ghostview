@@ -1,26 +1,25 @@
-# ghostview
 # 👻 GhostView
 
 [![Build](https://img.shields.io/github/actions/workflow/status/ghostkellz/ghostview/ci.yml?branch=main)](https://github.com/ghostkellz/ghostview/actions)
 [![License](https://img.shields.io/github/license/ghostkellz/ghostview)](LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/ghostkellz/ghostview?style=social)](https://github.com/ghostkellz/ghostview)
 
-> ✨ A beautiful, modular GUI interface for discovering and managing packages across the Arch Linux ecosystem and beyond.
+> ✨ A sleek, modular GUI for discovering and managing packages across the Arch Linux ecosystem — built with Go, Wails, and Svelte.
 
 ---
 
 ## 🎯 What is GhostView?
 
-**GhostView** is the GUI companion to [`ghostbrew`](https://github.com/ghostkellz/ghostbrew), designed for users who want a clean, visual interface to browse and manage:
+**GhostView** is a beautiful, lightweight desktop interface for exploring the best Linux packages — powered by [`ghostbrew`](https://github.com/ghostkellz/ghostbrew) under the hood.
 
-- 📦 **Pacman** packages (GUI & system)
+Browse and manage:
+
+- 📦 **Pacman** (GUI + system packages)
 - 🎯 **AUR** and **Chaotic-AUR**
-- 📦 **Flatpak** packages from Flathub & other remotes
-- 🧩 **KDE/GNOME** apps, categorized by desktop environment
-- 🔧 Curated **GitHub Repositories** for key Linux tools
-- 🐧 Future: **Debian packages**, Snap support, and more!
-
-Whether you're building a lean Arch install, searching for a Flatpak alternative, or exploring curated GitHub tools — **GhostView** is your spectral window into the Linux software world.
+- 📦 **Flatpak** (from Flathub & custom remotes)
+- 🧩 **KDE/GNOME apps**
+- 🧰 Curated **GitHub repositories** for essential Linux tools
+- 🐧 Future: Snap, AppImage, and Debian package support
 
 ---
 
@@ -28,54 +27,53 @@ Whether you're building a lean Arch install, searching for a Flatpak alternative
 
 | Feature | Status |
 |--------|--------|
-| 🔍 Unified package search (Pacman/AUR/Flatpak) | 🚧 WIP |
-| 🌈 Beautiful Tauri-based UI | ✅ Scaffolded |
-| 🧙‍♂️ GhostBrew-powered backend | ✅ |
-| 📚 Curated GitHub repo browsing | 🧪 Experimental |
-| 🛰️ Connect to custom AUR repo (hosted by you) | 🔜 |
-| 🔐 Secure install previews + reviews | 🔜 |
-| 📡 Remote backend / daemon mode for ghostbrew | 🧠 Planning |
-| 🛠️ App-specific actions (launch, uninstall, update) | 🔜 |
+| 🔍 Unified package search (Pacman/AUR/Flatpak) | 🚧 In Progress |
+| 🖥️ Svelte-based UI with native window via Wails | ✅ Scaffolded |
+| 🧙 Ghostbrew backend integration (via JSON) | 🛠️ Next up |
+| 📚 GitHub repo listing (tagged & categorized) | 🧪 Experimental |
+| 📡 Connect to self-hosted AUR or Flatpak remotes | 🔜 |
+| 🛠️ Launch, uninstall, update apps | 🔜 |
+| 🤖 Local LLM recommendation engine (optional) | 🔭 Exploration |
 
 ---
 
-## 🔧 Tech Stack
+## ⚙️ Tech Stack
 
-- 🦀 **Rust** + [**Tauri**](https://tauri.app)
-- 🧩 **Ghostbrew** (Go backend, CLI or daemon)
-- 🖼️ Planned frontend: Svelte / SolidJS or Tauri-native templates
+- 🧠 **Go** for the backend and shell execution
+- 🧩 **Wails** for cross-platform native GUI wrapper
+- 🎨 **Svelte** + Vite for the frontend
+- 🌐 JSON bridge between Go and frontend
 
 ---
 
 ## 📦 Goals
 
-GhostView aims to:
-- Be the **best lightweight GUI for Arch-based software discovery**
-- Stay **modular** — plug in any backend (Pacman, Flatpak, GitHub)
-- Respect the user's environment — no packagekit or snapd bloat
-- Eventually serve as a front-end to a **custom AUR mirror** or **GhostBrew repository**
+GhostView is built to:
+- Provide a **clean and fast** native GUI for Arch package management
+- Respect user choice — no snap, no flatpak spam, no bloated services
+- Work offline when needed
+- Eventually link to your own **ghostbrew-repo** or mirror server
 
 ---
 
 ## 🔮 Future Vision
 
-- 🏗️ Build `ghostbrew-repo` hosting infrastructure
-- 📦 Serve `.pkg.tar.zst` directly with NGINX or GhostGate
-- 🛠️ GUI-based build helper & PKGBUILD explorer
-- 🧠 Local LLM-powered software recommendations
-- 🌐 Optional web-based version (Electron/Tauri/Web)
+- 🌐 Push and sync to `ghostbrew-repo` (custom AUR-like hosting)
+- 📦 Serve `.pkg.tar.zst` files via GhostGate or direct NGINX
+- 🧠 Smart search and tagging via LLMs
+- 📲 Optional mobile/web dashboard
+- 🔒 Optional auth layer for remote access
 
 ---
 
-## 🧙 Get Involved
+## 🧙‍♂️ Get Involved
 
-Help shape the future of Arch GUI tools:
+Help us build the future of Arch GUI tools:
 
-- [ ] Submit issues or UI/UX ideas
-- [ ] Add package backend support (Deb, Snap, AppImage)
-- [ ] Fork & contribute Rust or frontend components
+- [ ] Submit feature ideas, bugs, or PRs
+- [ ] Help wire in advanced package formats (Snap, AppImage)
+- [ ] Add Ghostbrew data parsing modules in Go
 
 ---
 
-© 2025 [CK Technology](https://cktechx.com) / [GhostKellz](https://ghostkellz.sh) – Licensed under [MIT](LICENSE).
-
+© 2025 [CK Technology](https://cktechx.com) / [GhostKellz](https://ghostkellz.sh) – Licensed under [MIT](LICENSE)
