@@ -2,6 +2,8 @@ use eframe::egui;
 use std::process::Command;
 use std::fs;
 use std::time::Instant;
+use std::path::PathBuf;
+use std::io::Read;
 
 #[derive(Default)]
 struct PackageListItem {
@@ -143,6 +145,27 @@ fn get_flatpak_details(pkg: &str) -> String {
     }
 }
 
+fn read_config_aur_helper() -> Option<String> {
+    let config_paths = [
+        std::env::var("XDG_CONFIG_HOME").map(|p| PathBuf::from(p).join("ghostview/ghostview.toml")).ok(),
+        dirs::home_dir().map(|p| p.join(".config/ghostview/ghostview.toml")),
+        Some(PathBuf::from("ghostview.toml")),
+    ];
+    for path in config_paths.iter().flatten() {
+        if let Ok(mut file) = std::fs::File::open(path) {
+            let mut contents = String::new();
+            if file.read_to_string(&mut contents).is_ok() {
+                for line in contents.lines() {
+                    if let Some(helper) = line.strip_prefix("aur_helper = ") {
+                        return Some(helper.trim_matches('"').to_string());
+                    }
+                }
+            }
+        }
+    }
+    None
+}
+
 fn main() {
     let options = eframe::NativeOptions::default();
     eframe::run_native(
@@ -168,7 +191,7 @@ struct GhostviewApp {
 
 impl Default for GhostviewApp {
     fn default() -> Self {
-        let aur_helper = detect_helper(&["yay", "paru"]);
+        let aur_helper = read_config_aur_helper().or_else(|| detect_helper(&["yay", "paru"]));
         let flatpak_available = detect_helper(&["flatpak"]).is_some();
         Self {
             search_query: String::new(),
@@ -208,6 +231,10 @@ impl eframe::App for GhostviewApp {
             if self.flatpak_available {
                 self.repos.push("Flatpak".to_string());
             }
+            self.repos.push("KDE Apps".to_string());
+            self.repos.push("GNOME Apps".to_string());
+            self.repos.push("Debian Packages".to_string());
+            self.repos.push("GitHub Projects".to_string());
         }
 
         if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
@@ -327,7 +354,10 @@ impl eframe::App for GhostviewApp {
             });
             ui.separator();
             ui.columns(2, |cols| {
-                if self.loading {
+                let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
+                if repo == "KDE Apps" || repo == "GNOME Apps" || repo == "Debian Packages" || repo == "GitHub Projects" {
+                    cols[0].label(egui::RichText::new("Coming soon: This source is not yet implemented.").color(egui::Color32::from_rgb(255, 200, 100)));
+                } else if self.loading {
                     let dots = match Instant::now().duration_since(self.last_load).as_secs() % 3 {
                         0 => ".",
                         1 => "..",
