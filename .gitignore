@@ -1,9 +1,0 @@
-target/
-src-tauri/target/
-
-# .gitignore
-/node_modules
-/dist
-/.svelte-kit
-/src-tauri/.cargo
-/src-tauri/Cargo.lock
