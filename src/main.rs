@@ -117,11 +117,11 @@ impl eframe::App for GhostviewApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let visuals = egui::Visuals {
             dark_mode: true,
-            override_text_color: Some(egui::Color32::from_rgb(0x20, 0xff, 0x80)),
-            window_fill: egui::Color32::from_rgb(0x0a, 0x1a, 0x2f),
-            panel_fill: egui::Color32::from_rgb(0x0a, 0x1a, 0x2f),
-            faint_bg_color: egui::Color32::from_rgb(0x13, 0x24, 0x3a),
-            extreme_bg_color: egui::Color32::from_rgb(0x07, 0x13, 0x1f),
+            override_text_color: Some(egui::Color32::from_rgb(32, 255, 128)),
+            window_fill: egui::Color32::from_rgb(10, 26, 47),
+            panel_fill: egui::Color32::from_rgb(10, 26, 47),
+            faint_bg_color: egui::Color32::from_rgb(19, 36, 58),
+            extreme_bg_color: egui::Color32::from_rgb(7, 19, 31),
             ..Default::default()
         };
         ctx.set_visuals(visuals);
@@ -156,11 +156,11 @@ impl eframe::App for GhostviewApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.add_space(8.0);
             ui.horizontal(|ui| {
-                ui.heading(egui::RichText::new("👻 Ghostview").color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8)).size(32.0)); // Teal header
+                ui.heading(egui::RichText::new("👻 Ghostview").color(egui::Color32::from_rgb(125, 207, 255)).size(32.0)); // Tokyo Night teal header
             });
             ui.add_space(8.0);
             ui.horizontal(|ui| {
-                ui.label(egui::RichText::new("Repository:").color(egui::Color32::from_rgb(0x20, 0xff, 0x80)));
+                ui.label(egui::RichText::new("Repository:").color(egui::Color32::from_rgb(158, 206, 106))); // Mint green
                 egui::ComboBox::from_id_source("repo_select")
                     .selected_text(self.repos.get(self.selected_repo).cloned().unwrap_or_default())
                     .show_ui(ui, |cb| {
@@ -170,9 +170,10 @@ impl eframe::App for GhostviewApp {
                     });
                 if ui.add(
                     egui::Button::new("🔄 Refresh")
-                        .fill(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8))
+                        .fill(egui::Color32::from_rgb(34, 46, 60)) // Deep blue
                         .rounding(egui::Rounding::same(8.0))
-                        .min_size([32.0, 32.0].into())
+                        .min_size([36.0, 36.0].into())
+                        .frame(false)
                 ).clicked() {
                     self.repos = get_enabled_repos();
                     self.package_list.clear();
@@ -183,13 +184,14 @@ impl eframe::App for GhostviewApp {
                     .hint_text("Search packages...")
                     .desired_width(220.0)
                     .font(egui::TextStyle::Monospace)
-                    .text_color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8))
+                    .text_color(egui::Color32::from_rgb(125, 207, 255)) // Teal
                 );
                 if ui.add(
                     egui::Button::new("🔍 Search")
-                        .fill(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8))
+                        .fill(egui::Color32::from_rgb(34, 46, 60))
                         .rounding(egui::Rounding::same(8.0))
-                        .min_size([32.0, 32.0].into())
+                        .min_size([36.0, 36.0].into())
+                        .frame(false)
                 ).clicked() {
                     self.loading = true;
                     self.last_load = Instant::now();
@@ -208,19 +210,19 @@ impl eframe::App for GhostviewApp {
                         1 => "..",
                         _ => "...",
                     };
-                    cols[0].label(egui::RichText::new(format!("Loading{}", dots)).color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8)));
+                    cols[0].label(egui::RichText::new(format!("Loading{}", dots)).color(egui::Color32::from_rgb(125, 207, 255)));
                 } else {
                     egui::ScrollArea::vertical().show(&mut cols[0], |ui| {
                         for (i, pkg) in self.package_list.iter().enumerate() {
                             let selected = Some(i) == self.selected_index;
                             let label = egui::RichText::new(format!("{} {}", pkg.name, pkg.version))
-                                .color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8))
+                                .color(egui::Color32::from_rgb(125, 207, 255)) // Teal
                                 .size(16.0)
                                 .strong();
                             let bg = if selected {
-                                egui::Color32::from_rgb(0x13, 0x24, 0x3a)
+                                egui::Color32::from_rgb(40, 52, 74) // Slightly lighter blue
                             } else {
-                                egui::Color32::from_rgb(0x0a, 0x1a, 0x2f)
+                                egui::Color32::from_rgb(26, 34, 51) // Deep blue
                             };
                             let response = egui::Frame::none()
                                 .fill(bg)
@@ -243,13 +245,13 @@ impl eframe::App for GhostviewApp {
                 cols[1].vertical_centered(|ui| {
                     if let Some(idx) = self.selected_index {
                         let pkg = &self.package_list[idx];
-                        ui.heading(egui::RichText::new(&pkg.name).color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8))); // Teal
-                        ui.label(egui::RichText::new(&pkg.version).color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8)));
-                        ui.label(egui::RichText::new(&pkg.desc).color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8)));
+                        ui.heading(egui::RichText::new(&pkg.name).color(egui::Color32::from_rgb(125, 207, 255))); // Teal
+                        ui.label(egui::RichText::new(&pkg.version).color(egui::Color32::from_rgb(158, 206, 106))); // Mint green
+                        ui.label(egui::RichText::new(&pkg.desc).color(egui::Color32::from_rgb(158, 206, 106))); // Mint green
                         ui.separator();
                         ui.add_space(8.0);
                         egui::Frame::none()
-                            .fill(egui::Color32::from_rgb(0x13, 0x24, 0x3a))
+                            .fill(egui::Color32::from_rgb(34, 46, 60))
                             .rounding(egui::Rounding::same(8.0))
                             .show(ui, |ui| {
                                 ui.add(
@@ -259,26 +261,27 @@ impl eframe::App for GhostviewApp {
                                         .desired_width(f32::INFINITY)
                                         .lock_focus(true)
                                         .interactive(false)
-                                        .text_color(egui::Color32::from_rgb(0x20, 0xff, 0x80)) // Green text in details
+                                        .text_color(egui::Color32::from_rgb(158, 206, 106)) // Mint green in details
                                 );
                                 if ui.add(
                                     egui::Button::new("📋 Copy details")
-                                        .fill(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8))
+                                        .fill(egui::Color32::from_rgb(34, 46, 60))
                                         .rounding(egui::Rounding::same(8.0))
-                                        .min_size([32.0, 32.0].into())
+                                        .min_size([36.0, 36.0].into())
+                                        .frame(false)
                                 ).clicked() {
                                     ui.output_mut(|o| o.copied_text = self.package_details.clone());
                                     self.status = "Copied package details to clipboard!".into();
                                 }
                             });
                     } else {
-                        ui.label(egui::RichText::new("Select a package to view details.").color(egui::Color32::from_rgb(0x1e, 0xc6, 0xc8)));
+                        ui.label(egui::RichText::new("Select a package to view details.").color(egui::Color32::from_rgb(125, 207, 255)));
                     }
                 });
             });
             ui.separator();
             if !self.status.is_empty() {
-                ui.label(egui::RichText::new(&self.status).color(egui::Color32::from_rgb(0x20, 0xff, 0x80)));
+                ui.label(egui::RichText::new(&self.status).color(egui::Color32::from_rgb(158, 206, 106)));
             }
         });
     }
