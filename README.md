@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/github/license/ghostkellz/ghostview)](LICENSE)
 [![GitHub Repo stars](https://img.shields.io/github/stars/ghostkellz/ghostview?style=social)](https://github.com/ghostkellz/ghostview)
 
-> ✨ A sleek, modular GUI for discovering and managing packages across the Arch Linux ecosystem — built with Go, Wails, and Svelte.
+> ✨ A sleek, modular GUI for discovering and managing packages across the Arch Linux ecosystem — built with Rust and Slint.
 
 ---
 
@@ -28,8 +28,8 @@ Browse and manage:
 | Feature | Status |
 |--------|--------|
 | 🔍 Unified package search (Pacman/AUR/Flatpak) | 🚧 In Progress |
-| 🖥️ Svelte-based UI with native window via Wails | ✅ Scaffolded |
-| 🧙 Ghostbrew backend integration (via JSON) | 🛠️ Next up |
+| 🖥️ Native Slint-based UI | ✅ Scaffolded |
+| 🧙 Ghostbrew backend integration (via Rust) | 🛠️ Next up |
 | 📚 GitHub repo listing (tagged & categorized) | 🧪 Experimental |
 | 📡 Connect to self-hosted AUR or Flatpak remotes | 🔜 |
 | 🛠️ Launch, uninstall, update apps | 🔜 |
@@ -39,10 +39,9 @@ Browse and manage:
 
 ## ⚙️ Tech Stack
 
-- 🧠 **Go** for the backend and shell execution
-- 🧩 **Wails** for cross-platform native GUI wrapper
-- 🎨 **Svelte** + Vite for the frontend
-- 🌐 JSON bridge between Go and frontend
+- 🦀 **Rust** for the backend and core logic
+- 🖼️ **Slint** for the native, cross-platform GUI (Wayland/KDE/X11/Windows/macOS)
+- 🐧 Native Linux/Wayland support (no web stack)
 
 ---
 
