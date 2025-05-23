@@ -76,6 +76,73 @@ fn get_package_details(pkg: &str) -> String {
     }
 }
 
+fn detect_helper(cmds: &[&str]) -> Option<String> {
+    for &cmd in cmds {
+        if Command::new("which").arg(cmd).output().map(|o| o.status.success()).unwrap_or(false) {
+            return Some(cmd.to_string());
+        }
+    }
+    None
+}
+
+fn get_aur_packages(query: &str, aur_helper: &str) -> Vec<PackageListItem> {
+    let output = Command::new(aur_helper).args(["-Ss", query]).output();
+    match output {
+        Ok(out) => parse_packages(&String::from_utf8_lossy(&out.stdout)),
+        Err(_) => vec![PackageListItem {
+            name: "Failed to run AUR helper".into(),
+            version: "".into(),
+            desc: "".into(),
+            raw: "".into(),
+        }],
+    }
+}
+
+fn get_aur_details(pkg: &str, aur_helper: &str) -> String {
+    let output = Command::new(aur_helper).args(["-Si", pkg]).output();
+    match output {
+        Ok(out) => String::from_utf8_lossy(&out.stdout).to_string(),
+        Err(_) => "Failed to get AUR details".into(),
+    }
+}
+
+fn get_flatpak_packages(query: &str) -> Vec<PackageListItem> {
+    let output = Command::new("flatpak").args(["search", query]).output();
+    match output {
+        Ok(out) => {
+            let mut items = Vec::new();
+            for line in String::from_utf8_lossy(&out.stdout).lines().skip(1) {
+                let parts: Vec<_> = line.split_whitespace().collect();
+                if parts.len() >= 2 {
+                    let name = parts[0].to_string();
+                    let desc = parts[1..].join(" ");
+                    items.push(PackageListItem {
+                        name,
+                        version: "Flatpak".into(),
+                        desc,
+                        raw: line.to_string(),
+                    });
+                }
+            }
+            items
+        }
+        Err(_) => vec![PackageListItem {
+            name: "Failed to run flatpak".into(),
+            version: "".into(),
+            desc: "".into(),
+            raw: "".into(),
+        }],
+    }
+}
+
+fn get_flatpak_details(pkg: &str) -> String {
+    let output = Command::new("flatpak").args(["info", pkg]).output();
+    match output {
+        Ok(out) => String::from_utf8_lossy(&out.stdout).to_string(),
+        Err(_) => "Failed to get Flatpak details".into(),
+    }
+}
+
 fn main() {
     let options = eframe::NativeOptions::default();
     eframe::run_native(
@@ -95,10 +162,14 @@ struct GhostviewApp {
     loading: bool,
     status: String,
     last_load: Instant,
+    aur_helper: Option<String>,
+    flatpak_available: bool,
 }
 
 impl Default for GhostviewApp {
     fn default() -> Self {
+        let aur_helper = detect_helper(&["yay", "paru"]);
+        let flatpak_available = detect_helper(&["flatpak"]).is_some();
         Self {
             search_query: String::new(),
             package_details: String::new(),
@@ -109,6 +180,8 @@ impl Default for GhostviewApp {
             loading: false,
             status: String::new(),
             last_load: Instant::now(),
+            aur_helper,
+            flatpak_available,
         }
     }
 }
@@ -128,6 +201,13 @@ impl eframe::App for GhostviewApp {
 
         if self.repos.is_empty() {
             self.repos = get_enabled_repos();
+            if self.aur_helper.is_some() {
+                self.repos.push("AUR".to_string());
+                self.repos.push("Chaotic-AUR".to_string());
+            }
+            if self.flatpak_available {
+                self.repos.push("Flatpak".to_string());
+            }
         }
 
         if ctx.input(|i| i.key_pressed(egui::Key::ArrowDown)) {
@@ -135,12 +215,34 @@ impl eframe::App for GhostviewApp {
                 if idx + 1 < self.package_list.len() {
                     self.selected_index = Some(idx + 1);
                     let pkg = &self.package_list[idx + 1];
-                    self.package_details = get_package_details(&pkg.name);
+                    let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
+                    self.package_details = if repo == "AUR" || repo == "Chaotic-AUR" {
+                        if let Some(ref helper) = self.aur_helper {
+                            get_aur_details(&pkg.name, helper)
+                        } else {
+                            "No AUR helper found (yay/paru)".into()
+                        }
+                    } else if repo == "Flatpak" {
+                        get_flatpak_details(&pkg.name)
+                    } else {
+                        get_package_details(&pkg.name)
+                    };
                 }
             } else if !self.package_list.is_empty() {
                 self.selected_index = Some(0);
                 let pkg = &self.package_list[0];
-                self.package_details = get_package_details(&pkg.name);
+                let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
+                self.package_details = if repo == "AUR" || repo == "Chaotic-AUR" {
+                    if let Some(ref helper) = self.aur_helper {
+                        get_aur_details(&pkg.name, helper)
+                    } else {
+                        "No AUR helper found (yay/paru)".into()
+                    }
+                } else if repo == "Flatpak" {
+                    get_flatpak_details(&pkg.name)
+                } else {
+                    get_package_details(&pkg.name)
+                };
             }
         }
         if ctx.input(|i| i.key_pressed(egui::Key::ArrowUp)) {
@@ -148,7 +250,18 @@ impl eframe::App for GhostviewApp {
                 if idx > 0 {
                     self.selected_index = Some(idx - 1);
                     let pkg = &self.package_list[idx - 1];
-                    self.package_details = get_package_details(&pkg.name);
+                    let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
+                    self.package_details = if repo == "AUR" || repo == "Chaotic-AUR" {
+                        if let Some(ref helper) = self.aur_helper {
+                            get_aur_details(&pkg.name, helper)
+                        } else {
+                            "No AUR helper found (yay/paru)".into()
+                        }
+                    } else if repo == "Flatpak" {
+                        get_flatpak_details(&pkg.name)
+                    } else {
+                        get_package_details(&pkg.name)
+                    };
                 }
             }
         }
@@ -196,7 +309,17 @@ impl eframe::App for GhostviewApp {
                     self.loading = true;
                     self.last_load = Instant::now();
                     let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
-                    self.package_list = get_packages(&repo, &self.search_query);
+                    self.package_list = if repo == "AUR" || repo == "Chaotic-AUR" {
+                        if let Some(ref helper) = self.aur_helper {
+                            get_aur_packages(&self.search_query, helper)
+                        } else {
+                            vec![PackageListItem { name: "No AUR helper found (yay/paru)".into(), ..Default::default() }]
+                        }
+                    } else if repo == "Flatpak" {
+                        get_flatpak_packages(&self.search_query)
+                    } else {
+                        get_packages(&repo, &self.search_query)
+                    };
                     self.selected_index = None;
                     self.package_details.clear();
                     self.loading = false;
@@ -215,10 +338,16 @@ impl eframe::App for GhostviewApp {
                     egui::ScrollArea::vertical().show(&mut cols[0], |ui| {
                         for (i, pkg) in self.package_list.iter().enumerate() {
                             let selected = Some(i) == self.selected_index;
-                            let label = egui::RichText::new(format!("{} {}", pkg.name, pkg.version))
+                            let mut label = egui::RichText::new(format!("{} {}", pkg.name, pkg.version))
                                 .color(egui::Color32::from_rgb(125, 207, 255)) // Teal
                                 .size(16.0)
                                 .strong();
+                            let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
+                            if repo == "AUR" || repo == "Chaotic-AUR" {
+                                label = label.italics();
+                            } else if repo == "Flatpak" {
+                                label = label.underline();
+                            }
                             let bg = if selected {
                                 egui::Color32::from_rgb(40, 52, 74) // Slightly lighter blue
                             } else {
@@ -236,7 +365,17 @@ impl eframe::App for GhostviewApp {
                             if response.clicked() {
                                 if self.selected_index != Some(i) {
                                     self.selected_index = Some(i);
-                                    self.package_details = get_package_details(&pkg.name);
+                                    self.package_details = if repo == "AUR" || repo == "Chaotic-AUR" {
+                                        if let Some(ref helper) = self.aur_helper {
+                                            get_aur_details(&pkg.name, helper)
+                                        } else {
+                                            "No AUR helper found (yay/paru)".into()
+                                        }
+                                    } else if repo == "Flatpak" {
+                                        get_flatpak_details(&pkg.name)
+                                    } else {
+                                        get_package_details(&pkg.name)
+                                    };
                                 }
                             }
                         }
