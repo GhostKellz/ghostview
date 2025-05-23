@@ -211,6 +211,25 @@ impl Default for GhostviewApp {
 
 impl eframe::App for GhostviewApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let mut sidebar_selection = 0; // 0: All, 1: Installed, 2: Updates
+        egui::SidePanel::left("sidebar").min_width(120.0).show(ctx, |ui| {
+            ui.heading(egui::RichText::new("Ghostview").color(egui::Color32::from_rgb(125, 207, 255)).size(22.0));
+            ui.separator();
+            if ui.selectable_label(sidebar_selection == 0, "All").clicked() { sidebar_selection = 0; }
+            if ui.selectable_label(sidebar_selection == 1, "Installed").clicked() { sidebar_selection = 1; }
+            if ui.selectable_label(sidebar_selection == 2, "Updates").clicked() { sidebar_selection = 2; }
+            ui.separator();
+            ui.label(egui::RichText::new("Sources:").color(egui::Color32::from_rgb(158, 206, 106)));
+            for (i, repo) in self.repos.iter().enumerate() {
+                if ui.selectable_label(self.selected_repo == i, repo).clicked() {
+                    self.selected_repo = i;
+                    self.selected_index = None;
+                    self.package_list.clear();
+                    self.package_details.clear();
+                }
+            }
+        });
+
         let visuals = egui::Visuals {
             dark_mode: true,
             override_text_color: Some(egui::Color32::from_rgb(32, 255, 128)),
@@ -364,6 +383,8 @@ impl eframe::App for GhostviewApp {
                         _ => "...",
                     };
                     cols[0].label(egui::RichText::new(format!("Loading{}", dots)).color(egui::Color32::from_rgb(125, 207, 255)));
+                } else if self.package_list.is_empty() {
+                    cols[0].label(egui::RichText::new("No results found.").color(egui::Color32::from_rgb(255, 200, 100)));
                 } else {
                     egui::ScrollArea::vertical().show(&mut cols[0], |ui| {
                         for (i, pkg) in self.package_list.iter().enumerate() {
@@ -441,6 +462,64 @@ impl eframe::App for GhostviewApp {
                                 ).clicked() {
                                     ui.output_mut(|o| o.copied_text = self.package_details.clone());
                                     self.status = "Copied package details to clipboard!".into();
+                                }
+                                // Install/Remove/Update buttons
+                                let repo = self.repos.get(self.selected_repo).cloned().unwrap_or_default();
+                                let mut action_result = None;
+                                ui.horizontal(|ui| {
+                                    if ui.button("⬇️ Install").clicked() {
+                                        let output = if repo == "AUR" || repo == "Chaotic-AUR" {
+                                            if let Some(ref helper) = self.aur_helper {
+                                                Command::new(helper).args(["-S", &pkg.name]).output()
+                                            } else {
+                                                return;
+                                            }
+                                        } else if repo == "Flatpak" {
+                                            Command::new("flatpak").args(["install", &pkg.name, "-y"]).output()
+                                        } else {
+                                            Command::new("sudo").args(["pacman", "-S", &pkg.name, "--noconfirm"]).output()
+                                        };
+                                        action_result = Some(output);
+                                    }
+                                    if ui.button("❌ Remove").clicked() {
+                                        let output = if repo == "AUR" || repo == "Chaotic-AUR" {
+                                            if let Some(ref helper) = self.aur_helper {
+                                                Command::new(helper).args(["-R", &pkg.name]).output()
+                                            } else {
+                                                return;
+                                            }
+                                        } else if repo == "Flatpak" {
+                                            Command::new("flatpak").args(["remove", &pkg.name, "-y"]).output()
+                                        } else {
+                                            Command::new("sudo").args(["pacman", "-R", &pkg.name, "--noconfirm"]).output()
+                                        };
+                                        action_result = Some(output);
+                                    }
+                                    if ui.button("🔄 Update").clicked() {
+                                        let output = if repo == "AUR" || repo == "Chaotic-AUR" {
+                                            if let Some(ref helper) = self.aur_helper {
+                                                Command::new(helper).args(["-Syu", &pkg.name]).output()
+                                            } else {
+                                                return;
+                                            }
+                                        } else if repo == "Flatpak" {
+                                            Command::new("flatpak").args(["update", &pkg.name, "-y"]).output()
+                                        } else {
+                                            Command::new("sudo").args(["pacman", "-Syu", &pkg.name, "--noconfirm"]).output()
+                                        };
+                                        action_result = Some(output);
+                                    }
+                                });
+                                if let Some(result) = action_result {
+                                    match result {
+                                        Ok(out) => {
+                                            let msg = String::from_utf8_lossy(&out.stdout);
+                                            ui.label(egui::RichText::new(format!("Action output: {}", msg)).color(egui::Color32::from_rgb(158, 206, 106)));
+                                        }
+                                        Err(e) => {
+                                            ui.label(egui::RichText::new(format!("Action failed: {}", e)).color(egui::Color32::from_rgb(255, 100, 100)));
+                                        }
+                                    }
                                 }
                             });
                     } else {
